@@ -6,17 +6,25 @@ let
 
   cfg = config.home-manager;
 
-  hmModule = types.submodule ({name, ...}: {
-    imports = import ../modules/modules.nix { inherit lib pkgs; };
+  hmModule = types.submoduleWith {
+    specialArgs = { lib = extendedLib; };
+    modules = [(
+      {name, ...}: {
+        imports = import ../modules/modules.nix {
+          inherit pkgs;
+          lib = extendedLib;
+        };
 
-    config = {
-      submoduleSupport.enable = true;
-      submoduleSupport.externalPackageInstall = cfg.useUserPackages;
+        config = {
+          submoduleSupport.enable = true;
+          submoduleSupport.externalPackageInstall = cfg.useUserPackages;
 
-      home.username = config.users.users.${name}.name;
-      home.homeDirectory = config.users.users.${name}.home;
-    };
-  });
+          home.username = config.users.users.${name}.name;
+          home.homeDirectory = config.users.users.${name}.home;
+        };
+      }
+    )];
+  };
 
 in
 
